@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $REPO_SLUG-$SERVER_ENV
+  namespace: $K8S_NAMESPACE
+  labels:
+    app: $REPO_SLUG-$SERVER_ENV
+spec:
+  selector:
+    matchLabels:
+      app: $REPO_SLUG-$SERVER_ENV
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: $REPO_SLUG-$SERVER_ENV
+    spec:
+      containers:
+      - name: nginx
+        image: $BUILD_IMAGE
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+      - name: docker-registry-auth
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: $REPO_SLUG-$SERVER_ENV-svc
+  namespace: $K8S_NAMESPACE
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+  selector:
+    app: $REPO_SLUG-$SERVER_ENV
